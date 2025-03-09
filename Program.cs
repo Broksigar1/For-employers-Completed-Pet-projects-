@@ -1,10 +1,10 @@
 ﻿namespace LinkedList
 {
-    internal class Program
+    internal sealed class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            Console.WriteLine("Hello, World!");
+
         }
     }
 }
