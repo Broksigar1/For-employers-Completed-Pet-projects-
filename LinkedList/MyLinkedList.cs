@@ -1,4 +1,6 @@
-﻿namespace LinkedList
+﻿using Newtonsoft.Json.Linq;
+
+namespace LinkedList
 {
     internal sealed class MyLinkedList<T>
     {
@@ -46,7 +48,48 @@
         }
         #endregion
 
-        #region Методы
+        #region public методы
+
+        public void AddAfter(Node<T> node, T value)
+        {
+            var newNode = new Node<T>(value);
+            AddAfter(node, newNode);
+        }
+
+        public void AddAfter(Node<T> node, Node<T> newNode)
+        {
+            if (node == null || newNode == null) throw new ArgumentNullException();
+
+            var findedNode = FindNode(node);
+            if (findedNode == null || newNode.nextNode != null || newNode.previousNode != null)
+                throw new InvalidOperationException();
+
+            newNode.previousNode = findedNode;
+            newNode.nextNode = findedNode.nextNode;
+            findedNode.nextNode = newNode;
+            newNode.nextNode.previousNode = newNode;
+        }
+
+        public void AddBefore(Node<T> node, T value)
+        {
+            var newNode = new Node<T>(value);
+            AddBefore(node, newNode);
+        }
+
+        public void AddBefore(Node<T> node, Node<T> newNode)
+        {
+            if (node == null || newNode == null) throw new ArgumentNullException();
+
+            var findedNode = FindNode(node);
+            if (findedNode == null || newNode.nextNode != null || newNode.previousNode != null)
+                throw new InvalidOperationException();
+
+            newNode.previousNode = findedNode;
+            newNode.nextNode = findedNode.nextNode;
+            findedNode.nextNode = newNode;
+            newNode.nextNode.previousNode = newNode;
+        }
+
         public void AddFirst(T value)
         {
             var node = new Node<T>(value);
@@ -91,7 +134,7 @@
             }
         }
 
-        public bool Contains(T value) => Find(value) == null;
+        public bool Contains(T value) => Find(value) != null;
 
         public void Clear()
         {
@@ -99,26 +142,18 @@
                 RemoveFirst();
         }
 
-        public Node<T> Find(T value)
-        {
-            Node<T> currentNode = First;
-            while (currentNode.nextNode != null)
-            {
-                if (currentNode.Value.GetHashCode() == value.GetHashCode())
-                    return currentNode;
-                currentNode = currentNode.nextNode;
-            }
-            return null;
-        }
+        public Node<T> Find(T value) => Find(value, true);
 
-        public Node<T> FindLast(T value)
+        public Node<T> FindLast(T value) => Find(value, false);
+
+        private Node<T> Find(T value, bool nextOrPrevious) // true - next, previous - false
         {
-            Node<T> currentNode = Last;
-            while (currentNode.previousNode != null)
+            Node<T> currentNode = nextOrPrevious ? First : Last;
+            while (currentNode != null)
             {
                 if (currentNode.Value.GetHashCode() == value.GetHashCode())
                     return currentNode;
-                currentNode = currentNode.previousNode;
+                currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
             }
             return null;
         }
@@ -169,6 +204,28 @@
             }
             return false;
         }
+        #endregion
+
+        
+
+        #region private методы
+
+        private Node<T> FindNode(Node<T> node) => FindNode(node, true);
+
+        private Node<T> FindLastNode(Node<T> node) => FindNode(node, false);
+
+        private Node<T> FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
+        {
+            Node<T> currentNode = nextOrPrevious ? First : Last;
+            while (currentNode != null)
+            {
+                if (currentNode.Equals(nextOrPrevious ? node.nextNode : node.previousNode))
+                    return currentNode;
+                currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
+            }
+            return null;
+        }
+
         #endregion
     }
 }

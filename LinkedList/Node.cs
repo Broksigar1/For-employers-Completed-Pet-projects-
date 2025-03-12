@@ -12,5 +12,8 @@
             get;
             private set;
         }
+
+        public bool Equals(Node<T> node) => 
+            Value.GetHashCode() == node.Value.GetHashCode() && nextNode == node.nextNode && previousNode == node.previousNode;
     }
 }
