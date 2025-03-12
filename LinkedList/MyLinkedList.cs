@@ -2,11 +2,21 @@
 
 namespace LinkedList
 {
-    internal sealed class MyLinkedList<T>
+    internal sealed class MyLinkedList<T> : IEnumerable<T>
     {
         private Node<T> first = null;
         private Node<T> last = null;
         private int count = 0;
+
+        #region конструкторы
+
+        public MyLinkedList(IEnumerable<T> sequence)
+        {
+            foreach (var node in sequence)
+                AddLast(node);
+        }
+
+        #endregion
 
         #region Свойства
         public Node<T> First
@@ -80,52 +90,43 @@ namespace LinkedList
         {
             if (node == null || newNode == null) throw new ArgumentNullException();
 
-            var findedNode = FindNode(node);
+            var findedNode = FindLastNode(node);
             if (findedNode == null || newNode.nextNode != null || newNode.previousNode != null)
                 throw new InvalidOperationException();
 
-            newNode.previousNode = findedNode;
-            newNode.nextNode = findedNode.nextNode;
-            findedNode.nextNode = newNode;
-            newNode.nextNode.previousNode = newNode;
+            newNode.nextNode = findedNode;
+            newNode.previousNode = findedNode.previousNode;
+            findedNode.previousNode = newNode;
+            newNode.previousNode.nextNode = newNode;
         }
 
-        public void AddFirst(T value)
-        {
-            var node = new Node<T>(value);
-            AddFirst(node);
-        }
 
-        public void AddFirst(Node<T> node)
-        {
-            Count++;
-            if (First != null)
-            {
-                node.nextNode = First;
-                First = node;
-                node.nextNode.previousNode = node;
-            } 
-            else
-            {
-                First = node;
-                Last = node;
-            }
-        }
 
-        public void AddLast(T value)
-        {
-            var node = new Node<T>(value);
-            AddLast(node);
-        }
+        public void AddFirst(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), true);
 
-        public void AddLast(Node<T> node)
+        public void AddFirst(Node<T> node) => AddNodeToFirstOrLastPosition(node, true);
+
+        public void AddLast(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), false);
+
+        public void AddLast(Node<T> node) => AddNodeToFirstOrLastPosition(node, false);
+
+        private void AddNodeToFirstOrLastPosition(Node<T> node, bool firstOrLast) // true - First, false - Last
         {
             Count++;
-            if (Last != null)
+            if ((firstOrLast ? First : Last) != null)
             {
-                node.previousNode = Last;
-                Last = node;
-                node.previousNode.nextNode = node;
+                if (firstOrLast)
+                {
+                    node.nextNode = First;
+                    First = node;
+                    node.nextNode.previousNode = node;
+                }
+                else
+                {
+                    node.previousNode = Last;
+                    Last = node;
+                    node.previousNode.nextNode = node;
+                }
             }
             else
             {
@@ -135,6 +136,23 @@ namespace LinkedList
         }
 
         public bool Contains(T value) => Find(value) != null;
+
+        public void CopyTo(T[] array, int startPos)
+        {
+            if (array == null) throw new ArgumentNullException();
+            if (startPos < 0) throw new ArgumentOutOfRangeException();
+            if (Count - startPos > array.Length) throw new ArgumentException();
+
+            var currentNode = First;
+            var i = 0;
+            while (currentNode != null)
+            {
+                if (i >= startPos)
+                    array[i - startPos] = currentNode.Value;
+                i++;
+                currentNode = currentNode.nextNode;
+            }
+        }
 
         public void Clear()
         {
@@ -158,24 +176,26 @@ namespace LinkedList
             return null;
         }
 
-        public void RemoveFirst()
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            if (Count == 0) throw new InvalidOperationException("The MyLinkedList<T> is empty");
-            if (Count == 1)
-            {
-                First = null;
-                Last = null;
-            } 
-            else 
-            {
-                First = First.nextNode;
-                First.previousNode.nextNode = null;
-                First.previousNode = null;
-            }
-            Count--;
+            return GetEnumerator();
         }
 
-        public void RemoveLast()
+        public IEnumerator<T> GetEnumerator()
+        {
+            var currenNode = First;
+            while (currenNode != null)
+            {
+                yield return currenNode.Value;
+                currenNode = currenNode.nextNode;
+            }
+        }
+
+        public void RemoveFirst() => RemoveNode(true);
+
+        public void RemoveLast() => RemoveNode(false);
+
+        private void RemoveNode(bool firstOrLast) // true - First, false - Last
         {
             if (Count == 0) throw new InvalidOperationException("The MyLinkedList<T> is empty");
             if (Count == 1)
@@ -185,9 +205,18 @@ namespace LinkedList
             }
             else
             {
-                Last = Last.previousNode;
-                Last.nextNode.previousNode = null;
-                Last.nextNode = null;
+                if (firstOrLast)
+                {
+                    First = First.nextNode;
+                    First.previousNode.nextNode = null;
+                    First.previousNode = null;
+                }
+                else
+                {
+                    Last = Last.previousNode;
+                    Last.nextNode.previousNode = null;
+                    Last.nextNode = null;
+                }
             }
             Count--;
         }
