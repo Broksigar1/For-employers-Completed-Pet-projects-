@@ -170,6 +170,27 @@ namespace LinkedList
         }
 
         [Test]
+        public void CopyTo()
+        {
+            var list = new MyLinkedList<int>();
+            FillListNumbersFrom1To5(list);
+
+            int[] array = null;
+            Assert.Throws<ArgumentNullException>(() => list.CopyTo(array, 0));
+            array = new int[5];
+            Assert.Throws<ArgumentOutOfRangeException>(() => list.CopyTo(array, -1));
+            array = new int[3];
+            Assert.Throws<ArgumentException>(() => list.CopyTo(array, 0));
+
+            array = new int[5];
+            list.CopyTo(array, 0);
+            var i = 0;
+            foreach(var num in list)
+                Assert.That(array[i++], Is.EqualTo(num));
+
+        }
+
+        [Test]
         public void Clear()
         {
             var list = new MyLinkedList<int>();
@@ -237,7 +258,7 @@ namespace LinkedList
             list.Remove(5);
             Assert.That(CheckOrder(list, new int[] { 1, 2, 3, 4 }), Is.True);
 
-            list.AddLast(1);
+            list.AddLast(5);
             list.Remove(3);
             Assert.That(CheckOrder(list, new int[] { 1, 2, 4, 5 }), Is.True);
         }

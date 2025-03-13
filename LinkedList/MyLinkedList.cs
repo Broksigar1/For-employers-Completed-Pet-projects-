@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Security.Cryptography;
+using Newtonsoft.Json.Linq;
 
 namespace LinkedList
 {
@@ -32,7 +33,7 @@ namespace LinkedList
             }
             private set 
             {
-                if ((Count > 1 && value.previousNode != null) ||
+                if ((Count > 1 && value?.previousNode != null) ||
                     (Count == 1 && (value?.nextNode != null || value?.previousNode != null)))
                     throw new ArgumentException();
                 first = value;
@@ -48,8 +49,8 @@ namespace LinkedList
 
             private set
             {
-                if ((Count > 1 && value.nextNode != null) ||
-                    (Count == 1 && (value.nextNode != null || value.previousNode != null)))
+                if ((Count > 1 && value?.nextNode != null) ||
+                    (Count == 1 && (value?.nextNode != null || value?.previousNode != null)))
                     throw new ArgumentException();
                 last = value;
             }
@@ -182,7 +183,7 @@ namespace LinkedList
             Node<T>? currentNode = nextOrPrevious ? First : Last;
             while (currentNode != null)
             {
-                if (currentNode?.Value.GetHashCode() == value?.GetHashCode())
+                if (currentNode?.Value?.GetHashCode() == value?.GetHashCode())
                     return currentNode;
                 currentNode = nextOrPrevious ? currentNode?.nextNode : currentNode?.previousNode;
             }
@@ -222,15 +223,13 @@ namespace LinkedList
             {
                 if (firstOrLast)
                 {
+                    First.nextNode.previousNode = null;
                     First = First?.nextNode;
-                    First.previousNode.nextNode = null;
-                    First.previousNode = null;
                 }
                 else
                 {
+                    Last.previousNode.nextNode = null;
                     Last = Last?.previousNode;
-                    Last.nextNode.previousNode = null;
-                    Last.nextNode = null;
                 }
             }
             Count--;
@@ -239,13 +238,30 @@ namespace LinkedList
         public bool Remove(T value)
         {
             var deletedNode = Find(value);
-            var nextNode = deletedNode?.nextNode;
-            var previousNode = nextNode?.previousNode;
 
             if (deletedNode != null)
             {
-                deletedNode.previousNode.nextNode = deletedNode.nextNode;
-                deletedNode.nextNode.previousNode = deletedNode.previousNode;
+                if (deletedNode.Equals(First))
+                {
+                    deletedNode.nextNode.previousNode = null;
+                    First = deletedNode.nextNode ?? null;
+                }
+
+                if (deletedNode.Equals(Last))
+                {
+                    deletedNode.previousNode.nextNode = null;
+                    Last = deletedNode.previousNode ?? null;
+                }
+
+                if (deletedNode.previousNode != null)
+                {
+                    deletedNode.previousNode.nextNode = deletedNode.nextNode;
+                }
+
+                if (deletedNode.nextNode != null)
+                {
+                    deletedNode.nextNode.previousNode = deletedNode.previousNode;
+                }
                 Count--;
                 return true;
             }
@@ -260,9 +276,9 @@ namespace LinkedList
 
         private Node<T> FindLastNode(Node<T> node) => FindNode(node, false);
 
-        private Node<T> FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
+        private Node<T>? FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
         {
-            Node<T> currentNode = nextOrPrevious ? First : Last;
+            Node<T>? currentNode = nextOrPrevious ? First : Last;
             while (currentNode != null)
             {
                 if (currentNode.Equals(nextOrPrevious ? node.nextNode : node.previousNode))
