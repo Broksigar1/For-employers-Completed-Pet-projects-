@@ -2,13 +2,18 @@
 
 namespace LinkedList
 {
-    internal sealed class MyLinkedList<T> : IEnumerable<T>
+    internal sealed class MyLinkedList<T> : IEnumerable<T>, ICollection<T>
     {
-        private Node<T> first = null;
-        private Node<T> last = null;
+        private Node<T>? first = null;
+        private Node<T>? last = null;
         private int count = 0;
 
         #region конструкторы
+
+        public MyLinkedList() 
+        {
+            
+        }
 
         public MyLinkedList(IEnumerable<T> sequence)
         {
@@ -19,7 +24,7 @@ namespace LinkedList
         #endregion
 
         #region Свойства
-        public Node<T> First
+        public Node<T>? First
         {
             get
             {
@@ -27,11 +32,14 @@ namespace LinkedList
             }
             private set 
             {
+                if ((Count > 1 && value.previousNode != null) ||
+                    (Count == 1 && (value?.nextNode != null || value?.previousNode != null)))
+                    throw new ArgumentException();
                 first = value;
             }
         }
 
-        public Node<T> Last
+        public Node<T>? Last
         {
             get
             {
@@ -40,6 +48,9 @@ namespace LinkedList
 
             private set
             {
+                if ((Count > 1 && value.nextNode != null) ||
+                    (Count == 1 && (value.nextNode != null || value.previousNode != null)))
+                    throw new ArgumentException();
                 last = value;
             }
         }
@@ -53,12 +64,16 @@ namespace LinkedList
 
             private set
             {
+                if (count < 0)
+                    throw new ArgumentException();
                 count = value;
             }
         }
         #endregion
 
         #region public методы
+
+        void ICollection<T>.Add(T value) => AddLast(value);
 
         public void AddAfter(Node<T> node, T value)
         {
@@ -99,8 +114,6 @@ namespace LinkedList
             findedNode.previousNode = newNode;
             newNode.previousNode.nextNode = newNode;
         }
-
-
 
         public void AddFirst(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), true);
 
@@ -160,18 +173,18 @@ namespace LinkedList
                 RemoveFirst();
         }
 
-        public Node<T> Find(T value) => Find(value, true);
+        public Node<T>? Find(T value) => Find(value, true);
 
-        public Node<T> FindLast(T value) => Find(value, false);
+        public Node<T>? FindLast(T value) => Find(value, false);
 
-        private Node<T> Find(T value, bool nextOrPrevious) // true - next, previous - false
+        private Node<T>? Find(T value, bool nextOrPrevious) // true - next, previous - false
         {
-            Node<T> currentNode = nextOrPrevious ? First : Last;
+            Node<T>? currentNode = nextOrPrevious ? First : Last;
             while (currentNode != null)
             {
-                if (currentNode.Value.GetHashCode() == value.GetHashCode())
+                if (currentNode?.Value.GetHashCode() == value?.GetHashCode())
                     return currentNode;
-                currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
+                currentNode = nextOrPrevious ? currentNode?.nextNode : currentNode?.previousNode;
             }
             return null;
         }
@@ -191,11 +204,13 @@ namespace LinkedList
             }
         }
 
-        public void RemoveFirst() => RemoveNode(true);
+        bool ICollection<T>.IsReadOnly => false;
 
-        public void RemoveLast() => RemoveNode(false);
+        public void RemoveFirst() => RemoveFirstOrLastNode(true);
 
-        private void RemoveNode(bool firstOrLast) // true - First, false - Last
+        public void RemoveLast() => RemoveFirstOrLastNode(false);
+
+        private void RemoveFirstOrLastNode(bool firstOrLast) // true - First, false - Last
         {
             if (Count == 0) throw new InvalidOperationException("The MyLinkedList<T> is empty");
             if (Count == 1)
@@ -207,13 +222,13 @@ namespace LinkedList
             {
                 if (firstOrLast)
                 {
-                    First = First.nextNode;
+                    First = First?.nextNode;
                     First.previousNode.nextNode = null;
                     First.previousNode = null;
                 }
                 else
                 {
-                    Last = Last.previousNode;
+                    Last = Last?.previousNode;
                     Last.nextNode.previousNode = null;
                     Last.nextNode = null;
                 }
@@ -224,6 +239,9 @@ namespace LinkedList
         public bool Remove(T value)
         {
             var deletedNode = Find(value);
+            var nextNode = deletedNode?.nextNode;
+            var previousNode = nextNode?.previousNode;
+
             if (deletedNode != null)
             {
                 deletedNode.previousNode.nextNode = deletedNode.nextNode;
@@ -233,9 +251,8 @@ namespace LinkedList
             }
             return false;
         }
-        #endregion
 
-        
+        #endregion
 
         #region private методы
 
