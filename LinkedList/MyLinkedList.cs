@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using Newtonsoft.Json.Linq;
-
-namespace LinkedList
+﻿namespace LinkedList
 {
     internal sealed class MyLinkedList<T> : IEnumerable<T>, ICollection<T>
     {
@@ -13,7 +10,6 @@ namespace LinkedList
 
         public MyLinkedList() 
         {
-            
         }
 
         public MyLinkedList(IEnumerable<T> sequence)
@@ -253,6 +249,35 @@ namespace LinkedList
             Count--;
         }
 
+        public void Remove(Node<T> deletedNode)
+        {
+            if (deletedNode != null)
+            {
+                if (deletedNode.Equals(First))
+                {
+                    deletedNode.nextNode.previousNode = null;
+                    First = deletedNode.nextNode ?? null;
+                }
+
+                if (deletedNode.Equals(Last))
+                {
+                    deletedNode.previousNode.nextNode = null;
+                    Last = deletedNode.previousNode ?? null;
+                }
+
+                if (deletedNode.previousNode != null)
+                {
+                    deletedNode.previousNode.nextNode = deletedNode.nextNode;
+                }
+
+                if (deletedNode.nextNode != null)
+                {
+                    deletedNode.nextNode.previousNode = deletedNode.previousNode;
+                }
+                Count--;
+            }
+        }
+
         public bool Remove(T value)
         {
             var deletedNode = Find(value);
@@ -285,26 +310,6 @@ namespace LinkedList
             }
             return false;
         }
-
-        #endregion
-
-        #region private методы
-
-        //private Node<T> FindNode(Node<T> node) => FindNode(node, true);
-
-        //private Node<T> FindLastNode(Node<T> node) => FindNode(node, false);
-
-        //private Node<T>? FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
-        //{
-        //    Node<T>? currentNode = nextOrPrevious ? First : Last;
-        //    while (currentNode != null)
-        //    {
-        //        if (currentNode.Equals(nextOrPrevious ? node.nextNode : node.previousNode))
-        //            return currentNode;
-        //        currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
-        //    }
-        //    return null;
-        //}
 
         #endregion
     }
