@@ -86,14 +86,23 @@ namespace LinkedList
         {
             if (node == null || newNode == null) throw new ArgumentNullException();
 
-            var findedNode = FindNode(node);
-            if (findedNode == null || newNode.nextNode != null || newNode.previousNode != null)
+            if (newNode.nextNode != null || newNode.previousNode != null)
                 throw new InvalidOperationException();
 
-            newNode.previousNode = findedNode;
-            newNode.nextNode = findedNode.nextNode;
-            findedNode.nextNode = newNode;
-            newNode.nextNode.previousNode = newNode;
+            Count++;
+            if (node.Equals(Last))
+            {
+                Last = newNode;
+                node.nextNode = newNode;
+                newNode.previousNode = node;
+            }
+            else
+            {
+                newNode.previousNode = node;
+                newNode.nextNode = node.nextNode;
+                node.nextNode.previousNode = newNode;
+                node.nextNode = newNode;
+            }
         }
 
         public void AddBefore(Node<T> node, T value)
@@ -106,14 +115,23 @@ namespace LinkedList
         {
             if (node == null || newNode == null) throw new ArgumentNullException();
 
-            var findedNode = FindLastNode(node);
-            if (findedNode == null || newNode.nextNode != null || newNode.previousNode != null)
+            if (newNode.nextNode != null || newNode.previousNode != null)
                 throw new InvalidOperationException();
 
-            newNode.nextNode = findedNode;
-            newNode.previousNode = findedNode.previousNode;
-            findedNode.previousNode = newNode;
-            newNode.previousNode.nextNode = newNode;
+            Count++;
+            if (node.Equals(First))
+            {
+                First = newNode;
+                node.previousNode = newNode;
+                newNode.nextNode = node;
+            }
+            else
+            {
+                newNode.nextNode = node;
+                newNode.previousNode = node.previousNode;
+                node.previousNode.nextNode = newNode;
+                node.previousNode = newNode;
+            }
         }
 
         public void AddFirst(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), true);
@@ -272,21 +290,21 @@ namespace LinkedList
 
         #region private методы
 
-        private Node<T> FindNode(Node<T> node) => FindNode(node, true);
+        //private Node<T> FindNode(Node<T> node) => FindNode(node, true);
 
-        private Node<T> FindLastNode(Node<T> node) => FindNode(node, false);
+        //private Node<T> FindLastNode(Node<T> node) => FindNode(node, false);
 
-        private Node<T>? FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
-        {
-            Node<T>? currentNode = nextOrPrevious ? First : Last;
-            while (currentNode != null)
-            {
-                if (currentNode.Equals(nextOrPrevious ? node.nextNode : node.previousNode))
-                    return currentNode;
-                currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
-            }
-            return null;
-        }
+        //private Node<T>? FindNode(Node<T> node, bool nextOrPrevious) // true - next, previous - false
+        //{
+        //    Node<T>? currentNode = nextOrPrevious ? First : Last;
+        //    while (currentNode != null)
+        //    {
+        //        if (currentNode.Equals(nextOrPrevious ? node.nextNode : node.previousNode))
+        //            return currentNode;
+        //        currentNode = nextOrPrevious ? currentNode.nextNode : currentNode.previousNode;
+        //    }
+        //    return null;
+        //}
 
         #endregion
     }

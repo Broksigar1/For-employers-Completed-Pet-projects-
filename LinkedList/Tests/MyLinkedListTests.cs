@@ -116,6 +116,45 @@ namespace LinkedList
         #region Тесты на методы
 
         [Test]
+        public void AddAfter()
+        {
+            var list = new MyLinkedList<int>();
+            Assert.Throws<ArgumentNullException>(() => list.AddAfter(list.Find(1), 1));
+
+            FillListNumbersFrom1To5(list);
+            Assert.Throws<ArgumentNullException>(() => list.AddAfter(list.Find(1), null));
+
+            list.AddAfter(list.Find(1), 1);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 3, 4, 5 }), Is.True);
+
+            list.AddAfter(list.Find(5), 10);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 3, 4, 5, 10 }), Is.True);
+
+            list.AddAfter(list.Find(3), 15);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 3, 15, 4, 5, 10 }), Is.True);
+        }
+
+        [Test]
+        public void AddBefore()
+        {
+            var list = new MyLinkedList<int>();
+            Assert.Throws<ArgumentNullException>(() => list.AddBefore(list.Find(1), 1));
+
+            FillListNumbersFrom1To5(list);
+            Assert.Throws<ArgumentNullException>(() => list.AddBefore(list.Find(1), null));
+
+            list.AddBefore(list.Find(1), 1);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 3, 4, 5 }), Is.True);
+
+            list.AddBefore(list.Find(5), 10);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 3, 4, 10, 5 }), Is.True);
+
+            list.AddBefore(list.Find(3), 15);
+            Assert.That(CheckOrder(list, new int[] { 1, 1, 2, 15, 3, 4, 10, 5}), Is.True);
+        }
+
+
+        [Test]
         public void AddFirst()
         {
             var list = new MyLinkedList<int>();
@@ -187,7 +226,6 @@ namespace LinkedList
             var i = 0;
             foreach(var num in list)
                 Assert.That(array[i++], Is.EqualTo(num));
-
         }
 
         [Test]
