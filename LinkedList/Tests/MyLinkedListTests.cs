@@ -110,7 +110,6 @@ namespace LinkedList
             Assert.Throws<ArgumentException>(() => list.AddLast(node));
         }
 
-
         #endregion
 
         #region Тесты на методы
@@ -249,6 +248,19 @@ namespace LinkedList
             Assert.That(list.Find(5).Value, Is.EqualTo(5));
             Assert.That(list.Find(3).Value, Is.EqualTo(3));
             Assert.That(list.Find(10), Is.Null);
+        }
+
+        [Test]
+        public void FindLast()
+        {
+            var list = new MyLinkedList<int>();
+            Assert.That(list.Find(1), Is.Null);
+
+            FillListNumbersFrom1To5(list);
+            Assert.That(list.FindLast(1).Value, Is.EqualTo(1));
+            Assert.That(list.FindLast(5).Value, Is.EqualTo(5));
+            Assert.That(list.FindLast(3).Value, Is.EqualTo(3));
+            Assert.That(list.FindLast(10), Is.Null);
         }
 
         [Test]

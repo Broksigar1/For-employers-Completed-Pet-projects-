@@ -7,13 +7,13 @@
 
         public Node(T value) => Value = value;
 
-        public T? Value
+        public T Value
         {
             get;
             private set;
         }
 
-        public bool Equals(Node<T>? node) => 
+        public bool Equals(Node<T> node) => 
             Value?.GetHashCode() == node?.Value?.GetHashCode() && nextNode == node?.nextNode && previousNode == node?.previousNode;
     }
 }

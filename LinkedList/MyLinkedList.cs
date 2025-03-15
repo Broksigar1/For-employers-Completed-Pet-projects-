@@ -14,13 +14,14 @@
 
         public MyLinkedList(IEnumerable<T> sequence)
         {
-            foreach (var node in sequence)
-                AddLast(node);
+            foreach (var value in sequence)
+                AddLast(value);
         }
 
         #endregion
 
         #region Свойства
+
         public Node<T>? First
         {
             get
@@ -66,9 +67,10 @@
                 count = value;
             }
         }
+
         #endregion
 
-        #region public методы
+        #region Методы
 
         void ICollection<T>.Add(T value) => AddLast(value);
 
@@ -227,7 +229,7 @@
 
         private void RemoveFirstOrLastNode(bool firstOrLast) // true - First, false - Last
         {
-            if (Count == 0) throw new InvalidOperationException("The MyLinkedList<T> is empty");
+            if (Count == 0) throw new InvalidOperationException();
             if (Count == 1)
             {
                 First = null;
