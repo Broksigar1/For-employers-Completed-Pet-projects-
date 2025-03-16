@@ -6,7 +6,13 @@
         private Node<T>? last = null;
         private int count = 0;
 
-        #region конструкторы
+        private enum Positions 
+        {
+            First,
+            Last
+        }
+
+        #region Конструкторы
 
         public MyLinkedList() 
         {
@@ -43,7 +49,6 @@
             {
                 return last;
             }
-
             private set
             {
                 if ((Count > 1 && value?.nextNode != null) ||
@@ -59,7 +64,6 @@
             {
                 return count;
             }
-
             private set
             {
                 if (count < 0)
@@ -132,20 +136,20 @@
             }
         }
 
-        public void AddFirst(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), true);
+        public void AddFirst(T value) => AddNodeToPosition(new Node<T>(value), Positions.First);
 
-        public void AddFirst(Node<T> node) => AddNodeToFirstOrLastPosition(node, true);
+        public void AddFirst(Node<T> node) => AddNodeToPosition(node, Positions.First);
 
-        public void AddLast(T value) => AddNodeToFirstOrLastPosition(new Node<T>(value), false);
+        public void AddLast(T value) => AddNodeToPosition(new Node<T>(value), Positions.Last);
 
-        public void AddLast(Node<T> node) => AddNodeToFirstOrLastPosition(node, false);
+        public void AddLast(Node<T> node) => AddNodeToPosition(node, Positions.Last);
 
-        private void AddNodeToFirstOrLastPosition(Node<T> node, bool firstOrLast) // true - First, false - Last
+        private void AddNodeToPosition(Node<T> node, Positions pos)
         {
             Count++;
-            if ((firstOrLast ? First : Last) != null)
+            if ((pos == Positions.First ? First : Last) != null)
             {
-                if (firstOrLast)
+                if (pos == Positions.First)
                 {
                     node.nextNode = First;
                     First = node;
@@ -190,18 +194,18 @@
                 RemoveFirst();
         }
 
-        public Node<T>? Find(T value) => Find(value, true);
+        public Node<T>? Find(T value) => FindFromPosition(value, Positions.First);
 
-        public Node<T>? FindLast(T value) => Find(value, false);
+        public Node<T>? FindLast(T value) => FindFromPosition(value, Positions.Last);
 
-        private Node<T>? Find(T value, bool nextOrPrevious) // true - next, previous - false
+        private Node<T>? FindFromPosition(T value, Positions pos)
         {
-            Node<T>? currentNode = nextOrPrevious ? First : Last;
+            Node<T>? currentNode = pos == Positions.First ? First : Last;
             while (currentNode != null)
             {
                 if (currentNode?.Value?.GetHashCode() == value?.GetHashCode())
                     return currentNode;
-                currentNode = nextOrPrevious ? currentNode?.nextNode : currentNode?.previousNode;
+                currentNode = pos == Positions.First ? currentNode?.nextNode : currentNode?.previousNode;
             }
             return null;
         }
@@ -223,11 +227,11 @@
 
         bool ICollection<T>.IsReadOnly => false;
 
-        public void RemoveFirst() => RemoveFirstOrLastNode(true);
+        public void RemoveFirst() => RemoveAtPosition(Positions.First);
 
-        public void RemoveLast() => RemoveFirstOrLastNode(false);
+        public void RemoveLast() => RemoveAtPosition(Positions.Last);
 
-        private void RemoveFirstOrLastNode(bool firstOrLast) // true - First, false - Last
+        private void RemoveAtPosition(Positions pos)
         {
             if (Count == 0) throw new InvalidOperationException();
             if (Count == 1)
@@ -237,7 +241,7 @@
             }
             else
             {
-                if (firstOrLast)
+                if (pos == Positions.First)
                 {
                     First.nextNode.previousNode = null;
                     First = First?.nextNode;
